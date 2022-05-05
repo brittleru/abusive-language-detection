@@ -113,7 +113,7 @@ MANIFEST
 *.manifest
 *.spec
 
-# Installer logs
+# Installer model-logs
 pip-log.txt
 pip-delete-this-directory.txt
 
@@ -232,3 +232,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Python generated files
+models/
