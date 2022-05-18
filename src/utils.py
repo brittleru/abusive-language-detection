@@ -12,13 +12,22 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from pandas.io.parsers import TextFileReader
 
+
+# nltk.download("stopwords")
+# nltk.download("wordnet")
+# nltk.download('omw-1.4')
 __STOPWORDS = stopwords.words("english")
+STEMMER = PorterStemmer()
+LEMMATIZER = WordNetLemmatizer()
 
 
-def process_data(text: str) -> str:
+def process_data(text: str, do_stemming: bool = False, do_lemmas: bool = False, do_lowercase: bool = False) -> str:
     """
     @param text: The text to process. It will remove the money amounts, retweets, links,
                  hashtags, punctuation and it will lowercase all the words
+    @param do_stemming: Steam words to have less in vocabulary if set to true
+    @param do_lowercase: Lowercase input text if set to true
+    @param do_lemmas: Lemmatize word to be at a dictionary representation if true
     @return: The new processed text as a list of words
     """
     text = sub(r"\$\w*", "", text)
@@ -27,7 +36,8 @@ def process_data(text: str) -> str:
     text = sub(r"(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)", "", text)
     text = sub(r"#", "", text)
     text = sub("[^A-Za-z0-9]+", " ", text)  # also removes special characters since they are not alphanumeric
-    # text = text.lower()
+    if do_lowercase:
+        text = text.lower()
 
     # tokenized_data = __TOKENIZER.tokenize(text)
     tokenized_data = word_tokenize(text)
@@ -35,6 +45,15 @@ def process_data(text: str) -> str:
 
     for word in tokenized_data:
         if word not in __STOPWORDS and word not in punctuation:
+            if do_stemming and not do_lemmas:
+                word = STEMMER.stem(word)
+            elif do_lemmas and not do_stemming:
+                word = LEMMATIZER.lemmatize(word)
+            elif do_lemmas and do_stemming:
+                raise ValueError(
+                    f"Can't do both lemmatizing and stemming. Values for do_lemmas={do_lemmas} "
+                    f"and do_stemming={do_stemming} cannot be true for both."
+                )
             processed_data.append(word)
 
     return " ".join(processed_data)

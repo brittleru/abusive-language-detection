@@ -27,7 +27,7 @@ train_text = df["text"].tolist()
 def get_unique_words_vocabulary(dataset: list) -> dict:
     vocabulary = {}
     for tweet in dataset:
-        temp_words = process_data(tweet).split(" ")
+        temp_words = process_data(tweet, do_stemming=False, do_lemmas=True, do_lowercase=True).split(" ")
         for word in temp_words:
             if word not in vocabulary:
                 vocabulary[word] = len(vocabulary)
@@ -38,17 +38,17 @@ def get_unique_words_vocabulary(dataset: list) -> dict:
 def get_max_words_in_tweets(dataset: list) -> int:
     max_len = 0
     for tweet in dataset:
-        temp_tweet = process_data(tweet).split(" ")
+        temp_tweet = process_data(tweet, do_stemming=False, do_lemmas=True, do_lowercase=True).split(" ")
         if max_len < len(temp_tweet):
             max_len = len(temp_tweet)
 
     return max_len
 
 
-print(get_unique_words_vocabulary(train_text))
+# print(get_unique_words_vocabulary(train_text))
 
-# Clean: 57001 | No lowercase: 31643 | Lowercase: 26095
+# Clean: 57001 | No lowercase: 31643 | Lowercase: 26095 | Lowercase & Stemming: 17709 | Lowercase & Lemmas: 23102
 print(f"Total number of unique words in dataset: {len(get_unique_words_vocabulary(train_text))}")
 
-# Clean: 408 | No lowercase: 241 | Lowercase: 218
+# Clean: 408 | No lowercase: 241 | Lowercase: 218 | Lowercase & Stemming: 218 | Lowercase & Lemmas: 218
 print(f"Longest sentence in dataset has: {get_max_words_in_tweets(train_text)} words")

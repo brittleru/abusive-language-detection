@@ -28,13 +28,8 @@ VIDGEN_MODEL_PATH = os.path.join(MODEL_PATH, "vidgen")
 
 # cnn_model_no_preprocess | cnn_model_no_lowercase | cnn_model_lowercase | cnn_model_lowercase_stemming
 MODEL_FILE_NAME = "cnn_model_lowercase_stemming64"
-
-# Clean: 57001 | No lowercase: 31643 | Lowercase: 26095 | Lowercase & Stemming: 17709 | Lowercase & Lemmas: 23102
-VOCAB_SIZE = 23102
-
-# Clean: 408 | No lowercase: 241 | Lowercase: 218 | Lowercase & Stemming: 218 | Lowercase & Lemmas: 218
-MAX_PADDING_LENGTH = 218
-
+VOCAB_SIZE = 17709  # Clean: 57001 | No lowercase: 31643 | Lowercase: 26095 | Lowercase & Stemming: 17709
+MAX_PADDING_LENGTH = 218  # Clean: 408 | No lowercase: 241 | Lowercase: 218 | Lowercase & Stemming: 218
 LEARNING_RATE = 2e-5  # 0.0001
 EPOCHS = 50
 BATCH_SIZE = 64
@@ -47,7 +42,7 @@ HYPER_PARAMETERS = {
 def encode_one_hot_and_preprocess(texts: list, vocab_size: int = VOCAB_SIZE) -> list:
     return [one_hot(
         # temp_text,
-        process_data(temp_text, do_stemming=False, do_lemmas=True, do_lowercase=True),
+        process_data(temp_text, do_stemming=True, do_lowercase=True),
         vocab_size,
         filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
         lower=False,
