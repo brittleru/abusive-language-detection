@@ -19,6 +19,7 @@ With the project on the local machine, you need to create a virtual environment.
 activating it run the following command in the root directory in order to install the required
 dependencies to run the project:
 ```
+python -m pip install --upgrade pip
 python -m pip install -r "requirements.txt"
 ```
 Since the models take quite a lot of memory, they can't be stored here, and you need to train in
@@ -27,9 +28,8 @@ the framework used).
 
 
 ## Dataset References
-1. Waseem, Zeerak, and Dirk Hovy. "Hateful symbols or hateful people? predictive
-features for hate speech detection on twitter." Proceedings of the NAACL student
-research workshop. (2016).
-2. Waseem, Zeerak. "Are you a racist or am I seeing things? annotator influence on hate
-speech detection on twitter." Proceedings of the first workshop on NLP and
-computational social science. (2016).
+1. Vidgen, Bertie, et al. "Learning from the worst: Dynamically generated datasets to improve online hate detection." arXiv preprint arXiv:2012.15761 (2020).
+2. Davidson, Thomas, et al. "Automated hate speech detection and the problem of
+offensive language." Proceedings of the International AAAI Conference on Web and
+Social Media. Vol. 11. No. 1. (2017). 
+   
