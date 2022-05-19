@@ -31,10 +31,13 @@ def process_data(text: str, do_stemming: bool = False, do_lemmas: bool = False, 
     @return: The new processed text as a list of words
     """
     text = sub(r"\$\w*", "", text)
-    text = sub(r"^RT[\s]+", "", text)
+    text = sub(r"(RT)+", "", text)
+    text = sub(r"(lt)+", "", text)
+    text = sub(r"(gt)+", "", text)
     text = sub(r"@[a-zA-Z0-9\_]+", "", text)
     text = sub(r"(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)", "", text)
     text = sub(r"#", "", text)
+    text = sub(r"\d+", "", text)
     text = sub("[^A-Za-z0-9]+", " ", text)  # also removes special characters since they are not alphanumeric
     if do_lowercase:
         text = text.lower()
