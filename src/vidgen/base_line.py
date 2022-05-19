@@ -13,7 +13,7 @@ from keras.preprocessing.text import one_hot
 from keras.models import Sequential, load_model
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split, GridSearchCV
-from keras.layers import Dense, Embedding, GlobalMaxPool1D, Conv1D, Dropout
+from keras.layers import Dense, Embedding, GlobalMaxPool1D, Conv1D, Dropout, SpatialDropout1D, MaxPooling1D, Flatten
 
 from src.utils import process_data, display_readable_time, display_train_report_and_f1_score, plot_train_data
 
@@ -28,17 +28,17 @@ VIDGEN_MODEL_PATH = os.path.join(MODEL_PATH, "vidgen")
 
 # cnn_model_no_preprocess | cnn_model_no_lowercase | cnn_model_lowercase |
 # cnn_model_lowercase_stemming | cnn_model_lowercase_lemme
-MODEL_FILE_NAME = "cnn_model_lowercase_lemme64"
+MODEL_FILE_NAME = "cnn_model_lowercase_lemme32"
 
-# Clean: 57001 | No lowercase: 31643 | Lowercase: 26095 | Lowercase & Stemming: 17709 | Lowercase & Lemmas: 23102
-VOCAB_SIZE = 23102
+# Clean: 57001 | No lowercase: 31146 | Lowercase: 25617 | Lowercase & Stemming: 17231 | Lowercase & Lemmas: 22650
+VOCAB_SIZE = 22650
 
-# Clean: 408 | No lowercase: 241 | Lowercase: 218 | Lowercase & Stemming: 218 | Lowercase & Lemmas: 218
-MAX_PADDING_LENGTH = 218
+# Clean: 408 | No lowercase: 235 | Lowercase: 212 | Lowercase & Stemming: 212 | Lowercase & Lemmas: 212
+MAX_PADDING_LENGTH = 212
 
-LEARNING_RATE = 2e-5  # 0.0001
-EPOCHS = 50
-BATCH_SIZE = 64
+LEARNING_RATE = 0.0001  # 0.0001 | 2e-5
+EPOCHS = 10
+BATCH_SIZE = 128
 HYPER_PARAMETERS = {
     "filters": [32, 64, 128, 254],
     "kernel_size": [3, 5, 7, 9]
@@ -64,14 +64,32 @@ def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH) -> np
 
 
 def cnn_tuning(filters, kernel_size):
+    # # OVER-FIT
+    # temp_model = Sequential([
+    #     Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
+    #     Conv1D(filters, kernel_size, activation="relu"),
+    #     GlobalMaxPool1D(),
+    #     Dense(128, activation="relu"),
+    #     Dropout(0.5),
+    #     Dense(64, activation="relu"),
+    #     Dropout(0.1),
+    #     Dense(1, activation="sigmoid")
+    # ])
+
     temp_model = Sequential([
-        Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
-        Conv1D(filters, kernel_size, activation="relu"),
-        GlobalMaxPool1D(),
-        Dense(128, activation="relu"),
-        Dropout(0.5),
-        Dense(64, activation="relu"),
-        Dropout(0.1),
+        Embedding(VOCAB_SIZE, 150, input_length=MAX_PADDING_LENGTH),
+
+        Conv1D(128, kernel_size=5, padding='same', activation="relu"),
+        MaxPooling1D(pool_size=2),
+        Conv1D(64, kernel_size=5, padding='same', activation="relu"),
+        MaxPooling1D(pool_size=2),
+        Conv1D(32, kernel_size=5, padding='same', activation="relu"),
+        MaxPooling1D(pool_size=2),
+        Flatten(),
+        Dense(256, activation="relu"),
+        # Dropout(0.5),
+        # Dense(10, activation="relu"),
+        # Dropout(0.1),
         Dense(1, activation="sigmoid")
     ])
     temp_model.compile(
@@ -103,8 +121,8 @@ if __name__ == "__main__":
     # print(train_text.shape)
     # print(train_labels.shape)
 
-    X_train, X_temp, y_train, y_temp = train_test_split(train_text, train_labels, test_size=0.4, random_state=42)
-    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.3, random_state=42)
+    X_train, X_temp, y_train, y_temp = train_test_split(train_text, train_labels, test_size=0.1, random_state=42)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42)
 
     # print("\n\n")
     # print(X_train.shape, y_train.shape)

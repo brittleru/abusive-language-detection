@@ -49,6 +49,7 @@ def get_max_words_in_tweets(dataset: list) -> int:
     print(f"Max sentence: {max_tweet}")
     return max_len
 
+
 # print(get_unique_words_vocabulary(train_text))
 
 # Clean: 57001 | No lowercase: 31146 | Lowercase: 25617 | Lowercase & Stemming: 17231 | Lowercase & Lemmas: 22650

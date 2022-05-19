@@ -13,7 +13,7 @@ from keras.preprocessing.text import one_hot, Tokenizer
 from keras.models import Sequential, load_model
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split, GridSearchCV
-from keras.layers import Dense, Embedding, GlobalMaxPool1D, Conv1D, Dropout
+from keras.layers import Dense, Embedding, GlobalMaxPool1D, Conv1D, Dropout, MaxPooling1D, Flatten
 
 from src.utils import process_data, display_readable_time, display_train_report_and_f1_score, plot_train_data
 
@@ -33,10 +33,10 @@ GLOVE_PATH_6B300D = os.path.join(GLOVE_PATH, "glove.6B.300d.txt")
 # cnn_glove_model_lowercase_stemming | cnn_glove_model_lowercase_lemme
 MODEL_FILE_NAME = "cnn_glove_model_lowercase_lemme64"
 
-# Clean: 57001 | No lowercase: 31643 | Lowercase: 26095 | Lowercase & Stemming: 17709 | Lowercase & Lemmas: 23102
-VOCAB_SIZE = 23102
+# Clean: 57001 | No lowercase: 31146 | Lowercase: 25617 | Lowercase & Stemming: 17231 | Lowercase & Lemmas: 22650
+VOCAB_SIZE = 22650
 
-# Clean: 408 | No lowercase: 241 | Lowercase: 218 | Lowercase & Stemming: 218 | Lowercase & Lemmas: 218
+# Clean: 408 | No lowercase: 235 | Lowercase: 212 | Lowercase & Stemming: 212 | Lowercase & Lemmas: 212
 MAX_PADDING_LENGTH = 300
 
 OOV_TOKEN = "<OOV>"
@@ -91,6 +91,22 @@ def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH) -> tu
 
 
 def cnn_tuning(filters: int, kernel_size: int, embedding_matrix: np.ndarray, word_index: dict):
+    # temp_model = Sequential([
+    #     Embedding(
+    #         input_dim=len(word_index) + 1,
+    #         output_dim=MAX_PADDING_LENGTH,
+    #         weights=[embedding_matrix],
+    #         input_length=MAX_PADDING_LENGTH,
+    #         trainable=False
+    #     ),
+    #     Conv1D(filters, kernel_size, activation="relu"),
+    #     GlobalMaxPool1D(),
+    #     Dense(128, activation="relu"),
+    #     Dropout(0.5),
+    #     Dense(64, activation="relu"),
+    #     Dropout(0.1),
+    #     Dense(1, activation="sigmoid")
+    # ])
     temp_model = Sequential([
         Embedding(
             input_dim=len(word_index) + 1,
@@ -99,12 +115,17 @@ def cnn_tuning(filters: int, kernel_size: int, embedding_matrix: np.ndarray, wor
             input_length=MAX_PADDING_LENGTH,
             trainable=False
         ),
-        Conv1D(filters, kernel_size, activation="relu"),
-        GlobalMaxPool1D(),
-        Dense(128, activation="relu"),
-        Dropout(0.5),
-        Dense(64, activation="relu"),
-        Dropout(0.1),
+        Conv1D(128, kernel_size=5, padding='same', activation="relu"),
+        MaxPooling1D(pool_size=2),
+        Conv1D(64, kernel_size=5, padding='same', activation="relu"),
+        MaxPooling1D(pool_size=2),
+        Conv1D(32, kernel_size=5, padding='same', activation="relu"),
+        MaxPooling1D(pool_size=2),
+        Flatten(),
+        Dense(256, activation="relu"),
+        # Dropout(0.5),
+        # Dense(10, activation="relu"),
+        # Dropout(0.1),
         Dense(1, activation="sigmoid")
     ])
     temp_model.compile(
