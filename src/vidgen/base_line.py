@@ -36,9 +36,9 @@ VOCAB_SIZE = 22650
 # Clean: 408 | No lowercase: 235 | Lowercase: 212 | Lowercase & Stemming: 212 | Lowercase & Lemmas: 212
 MAX_PADDING_LENGTH = 212
 
-LEARNING_RATE = 0.0001  # 0.0001 | 2e-5
-EPOCHS = 10
-BATCH_SIZE = 128
+LEARNING_RATE = 2e-5  # 0.0001 | 2e-5
+EPOCHS = 20
+BATCH_SIZE = 64
 HYPER_PARAMETERS = {
     "filters": [32, 64, 128, 254],
     "kernel_size": [3, 5, 7, 9]

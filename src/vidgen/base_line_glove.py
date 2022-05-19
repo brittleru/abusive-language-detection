@@ -43,7 +43,7 @@ OOV_TOKEN = "<OOV>"
 TOKENIZER = Tokenizer(num_words=VOCAB_SIZE, oov_token=OOV_TOKEN)
 
 LEARNING_RATE = 2e-5  # 0.0001
-EPOCHS = 50
+EPOCHS = 20
 BATCH_SIZE = 64
 HYPER_PARAMETERS = {
     "filters": [32, 64, 128, 254],
@@ -165,17 +165,17 @@ if __name__ == "__main__":
     # print(X_val.shape, y_val.shape)
     # print(X_test.shape, y_test.shape)
 
-    embd_matrix = create_embedding_matrix(word_index=word_idx)
-
-    val_data = (X_val, y_val)
-    model = cnn_tuning(64, 9, embedding_matrix=embd_matrix, word_index=word_idx)
-    csv_logger = CSVLogger(os.path.join(VIDGEN_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",", append=False)
-    start_time = time.time()
-    hist = model.fit(X_train, y_train, validation_data=val_data, epochs=EPOCHS, batch_size=BATCH_SIZE,
-                     callbacks=[csv_logger])
-    end_time = time.time()
-    model.save(os.path.join(VIDGEN_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
-    display_readable_time(start_time=start_time, end_time=end_time)
+    # embd_matrix = create_embedding_matrix(word_index=word_idx)
+    #
+    # val_data = (X_val, y_val)
+    # model = cnn_tuning(64, 9, embedding_matrix=embd_matrix, word_index=word_idx)
+    # csv_logger = CSVLogger(os.path.join(VIDGEN_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",", append=False)
+    # start_time = time.time()
+    # hist = model.fit(X_train, y_train, validation_data=val_data, epochs=EPOCHS, batch_size=BATCH_SIZE,
+    #                  callbacks=[csv_logger])
+    # end_time = time.time()
+    # model.save(os.path.join(VIDGEN_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
+    # display_readable_time(start_time=start_time, end_time=end_time)
 
     log_data = pd.read_csv(os.path.join(VIDGEN_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), sep=",", engine="python")
     display_train_report_and_f1_score(log_data)
@@ -186,9 +186,9 @@ if __name__ == "__main__":
     plt.show()
 
     # # ======= Test Model =======
-    # new_model = load_model(os.path.join(VIDGEN_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
-    # predictions = new_model.predict(X_test)
-    predictions = model.predict(X_test)
+    new_model = load_model(os.path.join(VIDGEN_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
+    predictions = new_model.predict(X_test)
+    # predictions = model.predict(X_test)
 
     for prediction in predictions:
         for index, pred_class in enumerate(prediction):
