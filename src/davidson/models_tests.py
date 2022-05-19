@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
@@ -18,18 +20,19 @@ from src.utils import process_data, display_readable_time, display_train_report_
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = os.path.join(BASE_DIR, "data")
 PRETRAINED_DIR = os.path.join(DATA_DIR, "pretrained")
-VIDGEN_DIR = os.path.join(DATA_DIR, "dynamically-hate-vidgen")
-DATASET_PATH = os.path.join(VIDGEN_DIR, "Dynamically_Generated_Hate_Dataset_v0.2.3.csv")
+DAVIDSON_DIR = os.path.join(DATA_DIR, "hatespeech-davidson")
+DATASET_PATH = os.path.join(DAVIDSON_DIR, "data/labeled_data.csv")
 MODEL_LOGS_PATH = os.path.join(BASE_DIR, "model-logs")
-VIDGEN_MODEL_LOGS_PATH = os.path.join(MODEL_LOGS_PATH, "vidgen")
+DAVIDSON_MODEL_LOGS_PATH = os.path.join(MODEL_LOGS_PATH, "davidson")
 MODEL_PATH = os.path.join(BASE_DIR, "models")
-VIDGEN_MODEL_PATH = os.path.join(MODEL_PATH, "vidgen")
+DAVIDSON_MODEL_PATH = os.path.join(MODEL_PATH, "davidson")
 
-# Clean: 57001 | No lowercase: 31146 | Lowercase: 25617 | Lowercase & Stemming: 17231 | Lowercase & Lemmas: 22650
-VOCAB_SIZE = 22650
 
-# Clean: 408 | No lowercase: 235 | Lowercase: 212 | Lowercase & Stemming: 212 | Lowercase & Lemmas: 212
-MAX_PADDING_LENGTH = 212
+# Clean: 59462 | No lowercase: 24667 | Lowercase: 19586 | Lowercase & Stemming: 15283 | Lowercase & Lemmas: 17819
+VOCAB_SIZE = 17819
+
+# Clean: 36 | No lowercase: 29 | Lowercase: 28 | Lowercase & Stemming: 28 | Lowercase & Lemmas: 28
+MAX_PADDING_LENGTH = 28
 
 
 def visualization_all(classifier_dict: dict, train_result: list, train_result_type: str) -> None:
@@ -61,7 +64,7 @@ def classifiers_scores(train_set: np.ndarray, train_label: np.ndarray,
         classifier = classifier_dict[key].fit(train_set, train_label)
         train_predictions = classifier.predict(test_set)
         acc = accuracy_score(test_label, train_predictions)
-        f1 = f1_score(test_label, train_predictions)
+        f1 = f1_score(test_label, train_predictions, average='weighted')
         accuracies.append(acc)
         f1_scores.append(f1)
         print(f"{key} -> acc: {acc} | f1: {f1}")
@@ -73,15 +76,8 @@ if __name__ == "__main__":
 
     df = pd.read_csv(DATASET_PATH, delimiter=",")
 
-    train_text = df["text"].tolist()
-    train_labels = df["label"].tolist()
-
-    # Transform labels to numerical value
-    for index, train_label in enumerate(train_labels):
-        if train_label == "hate":
-            train_labels[index] = 1
-        else:
-            train_labels[index] = 0
+    train_text = df["tweet"].tolist()
+    train_labels = df["class"].tolist()
 
     for i, text in enumerate(train_text):
         train_text[i] = process_data(text, do_stemming=False, do_lemmas=True, do_lowercase=True)
@@ -97,8 +93,8 @@ if __name__ == "__main__":
     print("Started training...")
 
     classifiers = {
-        "Logistic Regression": LogisticRegression(),
-        "Gaussian Naive Bayes": GaussianNB(),
+        "One vs All with Logistic Regression": OneVsRestClassifier(LogisticRegression(random_state=0, solver='liblinear')),
+        "One vs One with 3 KNN": OneVsOneClassifier(KNeighborsClassifier(n_neighbors=3)),
         "XGBoost": XGBClassifier(),
         "LightGBM": LGBMClassifier(),
         "CatBoost": CatBoostClassifier(),
