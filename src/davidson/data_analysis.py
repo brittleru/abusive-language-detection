@@ -1,11 +1,9 @@
 import os
-from collections import Counter
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import nltk
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
 from src.utils import process_data
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -25,17 +23,17 @@ train_text = df["tweet"].tolist()
 
 def plots():
     # Number of hate or nothate or neutral tweets
-    not_hate_tweets = df[df["class"] == 0]
-    hate_tweets = df[df["class"] == 1]
+    hate_tweets = df[df["class"] == 0]
+    offensive_tweets = df[df["class"] == 1]
     neutral_tweets = df[df["class"] == 2]
-    print(f"Number of hateful tweets in data set: {len(hate_tweets)}")  # 19190
-    print(f"Number of not hateful tweets in data set: {len(not_hate_tweets)}")  # 1430
+    print(f"Number of hate speech tweets in data set: {len(hate_tweets)}")  # 1430
+    print(f"Number of offensive language tweets in data set: {len(offensive_tweets)}")  # 19190
     print(f"Number of neutral tweets in data set: {len(neutral_tweets)}\n")  # 4163
-    print(not_hate_tweets)
+    print(hate_tweets)
 
     plt.figure()
-    labels = ("Hate", "Not Hate", "Neutral")
-    num_of_tweets_types = [len(hate_tweets), len(not_hate_tweets), len(neutral_tweets)]
+    labels = ("Offensive", "Hate Speech", "Neutral")
+    num_of_tweets_types = [len(offensive_tweets), len(hate_tweets), len(neutral_tweets)]
     plt.pie(num_of_tweets_types, colors=["#B5EAD7", "#C7CEEA", "#E2F0CB"], shadow=True, autopct="%1.1f%%",
             startangle=90)
     plt.legend(labels)
