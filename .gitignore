@@ -235,3 +235,4 @@ cython_debug/
 
 # Python generated files
 models/
+data/pretrained

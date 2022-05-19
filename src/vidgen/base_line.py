@@ -26,8 +26,9 @@ VIDGEN_MODEL_LOGS_PATH = os.path.join(MODEL_LOGS_PATH, "vidgen")
 MODEL_PATH = os.path.join(BASE_DIR, "models")
 VIDGEN_MODEL_PATH = os.path.join(MODEL_PATH, "vidgen")
 
-# cnn_model_no_preprocess | cnn_model_no_lowercase | cnn_model_lowercase | cnn_model_lowercase_stemming
-MODEL_FILE_NAME = "cnn_model_lowercase_stemming64"
+# cnn_model_no_preprocess | cnn_model_no_lowercase | cnn_model_lowercase |
+# cnn_model_lowercase_stemming | cnn_model_lowercase_lemme
+MODEL_FILE_NAME = "cnn_model_lowercase_lemme64"
 
 # Clean: 57001 | No lowercase: 31643 | Lowercase: 26095 | Lowercase & Stemming: 17709 | Lowercase & Lemmas: 23102
 VOCAB_SIZE = 23102
