@@ -24,6 +24,39 @@ print(df.groupby("type").count()["acl.id"])
 train_text = df["text"].tolist()
 
 
+def plots():
+    #  Number of tweets depending of how are split
+    train_df = df[df["split"] == "train"]
+    test_df = df[df["split"] == "test"]
+    dev_df = df[df["split"] == "dev"]
+    print(f"Number of train split sentences in data set: {len(train_df)}")  # 32924
+    print(f"Number of test split sentences in data set: {len(test_df)}")  # 4120
+    print(f"Number of dev split sentences in data set: {len(dev_df)}\n")  # 4100
+
+    splits = np.array([len(train_df), len(test_df), len(dev_df)])
+    labels = ["Train", "Test", "Dev"]
+    explode = [0.1, 0, 0]
+    colors = ["#B5EAD7", "#C7CEEA", "#E2F0CB"]
+
+    plt.pie(splits, labels=labels, explode=explode, shadow=True, colors=colors, autopct="%1.1f%%", startangle=90)
+    plt.axis("equal")
+
+    # Number of hate or nothate tweets
+    not_hate_tweets = df[df["label"] == "nothate"]
+    hate_tweets = df[df["label"] == "hate"]
+    print(f"Number of hateful sentences in data set: {len(hate_tweets)}")  # 22175
+    print(f"Number of not hateful sentences in data set: {len(not_hate_tweets)}\n")  # 18969
+    print(not_hate_tweets)
+
+    plt.figure()
+    labels = ("Hate", "Not Hate")
+    num_of_tweets_types = [len(hate_tweets), len(not_hate_tweets)]
+    plt.pie(num_of_tweets_types, colors=["#B5EAD7", "#C7CEEA"], shadow=True, autopct="%1.1f%%", startangle=90)
+    plt.legend(labels)
+    plt.axis("equal")
+    plt.show()
+
+
 def get_unique_words_vocabulary(dataset: list) -> dict:
     vocabulary = {}
     for tweet in dataset:
@@ -36,7 +69,7 @@ def get_unique_words_vocabulary(dataset: list) -> dict:
     return vocabulary
 
 
-def get_max_words_in_tweets(dataset: list) -> int:
+def get_max_words_in_sentences(dataset: list) -> int:
     max_len = 0
     max_tweet = ""
     for tweet in dataset:
@@ -56,4 +89,6 @@ def get_max_words_in_tweets(dataset: list) -> int:
 print(f"Total number of unique words in dataset: {len(get_unique_words_vocabulary(train_text))}")
 
 # Clean: 408 | No lowercase: 235 | Lowercase: 212 | Lowercase & Stemming: 212 | Lowercase & Lemmas: 212
-print(f"Longest sentence in dataset has: {get_max_words_in_tweets(train_text)} words")
+print(f"Longest sentence in dataset has: {get_max_words_in_sentences(train_text)} words")
+
+plots()
