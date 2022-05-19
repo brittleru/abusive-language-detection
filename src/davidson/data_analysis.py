@@ -50,7 +50,7 @@ def get_unique_words_vocabulary(dataset: list) -> dict:
     vocabulary = {}
     for tweet in dataset:
         # temp_words = tweet.split(" ")
-        temp_words = process_data(tweet, do_stemming=True, do_lemmas=False, do_lowercase=True).split(" ")
+        temp_words = process_data(tweet, do_stemming=False, do_lemmas=True, do_lowercase=True).split(" ")
         for word in temp_words:
             if word not in vocabulary:
                 vocabulary[word] = len(vocabulary)
@@ -63,7 +63,7 @@ def get_max_words_in_tweets(dataset: list) -> int:
     max_tweet = ""
     for tweet in dataset:
         # temp_tweet = tweet.split(" ")
-        temp_tweet = process_data(tweet, do_stemming=True, do_lemmas=False, do_lowercase=True).split(" ")
+        temp_tweet = process_data(tweet, do_stemming=False, do_lemmas=True, do_lowercase=True).split(" ")
         if max_len < len(temp_tweet):
             max_len = len(temp_tweet)
             max_tweet = temp_tweet
