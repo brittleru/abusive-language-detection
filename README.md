@@ -54,8 +54,13 @@ the framework used).
 ```
 
 ## Dataset References
-1. Vidgen, Bertie, et al. "Learning from the worst: Dynamically generated datasets to improve online hate detection." arXiv preprint arXiv:2012.15761 (2020).
+1. Vidgen, Bertie, et al. "Learning from the worst: Dynamically generated datasets to improve online hate detection." 
+   arXiv preprint arXiv:2012.15761 (2020).
 2. Davidson, Thomas, et al. "Automated hate speech detection and the problem of
-offensive language." Proceedings of the International AAAI Conference on Web and
-Social Media. Vol. 11. No. 1. (2017). 
+   offensive language." Proceedings of the International AAAI Conference on Web and
+   Social Media. Vol. 11. No. 1. (2017).
+3. Zampieri, Marcos, et al. "Predicting the type and target of offensive posts in social media." arXiv 
+   preprint arXiv:1902.09666 (2019).
+4.
+5. 
    
