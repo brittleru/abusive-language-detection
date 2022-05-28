@@ -61,6 +61,7 @@ the framework used).
    Social Media. Vol. 11. No. 1. (2017).
 3. Zampieri, Marcos, et al. "Predicting the type and target of offensive posts in social media." arXiv 
    preprint arXiv:1902.09666 (2019).
-4.
+4. Founta, Antigoni Maria, et al. "Large scale crowdsourcing and characterization of twitter abusive behavior." Twelfth
+   International AAAI Conference on Web and Social Media (2018).
 5. 
    
