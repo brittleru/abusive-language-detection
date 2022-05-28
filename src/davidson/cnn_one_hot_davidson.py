@@ -78,7 +78,6 @@ def cnn_tuning(filters, kernel_size):
         Dense(3, activation="softmax")
     ])
 
-
     # temp_model = Sequential([
     #     Embedding(VOCAB_SIZE, 150, input_length=MAX_PADDING_LENGTH),
     #
@@ -116,8 +115,8 @@ if __name__ == "__main__":
 
     train_text = prepare_data_for_train(train_text)
     train_labels = np.array(train_labels)
-    print(train_text.shape)
-    print(train_labels.shape)
+    # print(train_text.shape)
+    # print(train_labels.shape)
 
     X_train, X_temp, y_train, y_temp = train_test_split(train_text, train_labels, test_size=0.1, random_state=42)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42)
@@ -129,7 +128,8 @@ if __name__ == "__main__":
 
     val_data = (X_val, y_val)
     model = cnn_tuning(64, 9)
-    csv_logger = CSVLogger(os.path.join(DAVIDSON_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",", append=False)
+    csv_logger = CSVLogger(os.path.join(DAVIDSON_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",",
+                           append=False)
     start_time = time.time()
     hist = model.fit(X_train, y_train, validation_data=val_data, epochs=EPOCHS, batch_size=BATCH_SIZE,
                      callbacks=[csv_logger])
@@ -164,7 +164,6 @@ if __name__ == "__main__":
     # probVal = np.amax(predictions)
     # classIndex = np.argmax(predictions, axis=1)[0]
     print(f"\n{classification_report(y_test, predictions)}")
-
 
     # # ======= Grid Search =======
     # model = tf.keras.wrappers.scikit_learn.KerasClassifier(
