@@ -8,7 +8,7 @@ in an aggressive way. A way to reduce this behavior in the online environment is
 the abusive text with an abusive language detection model, then delete or report it.
 
 We provide an analysis over the existent state-of-the-art abusive language datasets and deep learning models in order 
-to improve the classification of abusive language. By using **[X]** models on each dataset and having **[Y]** datasets
+to improve the classification of abusive language. By using **[X]** models on each dataset and having 5 datasets
 that are different we can gain an enhanced hate-speech detection algorithm.
 
 ### Technologies used
