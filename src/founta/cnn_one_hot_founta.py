@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from keras.utils import np_utils
 from keras.metrics import Precision, Recall
+from keras.preprocessing.text import one_hot
 from keras.models import Sequential, load_model
 from sklearn.metrics import classification_report
 from keras.callbacks import CSVLogger, EarlyStopping
-from keras.preprocessing.text import one_hot, Tokenizer
 from sklearn.model_selection import train_test_split, GridSearchCV
 from keras.layers import Dense, Embedding, GlobalMaxPool1D, Conv1D, Dropout, SpatialDropout1D, MaxPooling1D, Flatten
 
@@ -20,7 +20,6 @@ from src.utils import process_data, display_readable_time, display_train_report_
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = os.path.join(BASE_DIR, "data")
-PRETRAINED_DIR = os.path.join(DATA_DIR, "pretrained")
 FOUNTA_DIR = os.path.join(DATA_DIR, "large-founta")
 TRAIN_SET_PATH = os.path.join(FOUNTA_DIR, "train.tsv")
 VAL_SET_PATH = os.path.join(FOUNTA_DIR, "dev.tsv")
@@ -29,20 +28,16 @@ MODEL_LOGS_PATH = os.path.join(BASE_DIR, "model-logs")
 FOUNTA_MODEL_LOGS_PATH = os.path.join(MODEL_LOGS_PATH, "founta")
 MODEL_PATH = os.path.join(BASE_DIR, "models")
 FOUNTA_MODEL_PATH = os.path.join(MODEL_PATH, "founta")
-GLOVE_PATH = os.path.join(PRETRAINED_DIR, "glove-6B")
-GLOVE_PATH_6B300D = os.path.join(GLOVE_PATH, "glove.6B.50d.txt")
 
 # cnn_model_no_preprocess | cnn_model_no_lowercase | cnn_model_lowercase |
 # cnn_model_lowercase_stemming | cnn_model_lowercase_lemme
-MODEL_FILE_NAME = "cnn_glove_model_lowercase_lemme"
+MODEL_FILE_NAME = "cnn_model_lowercase_lemme"
 
 # Clean: 292512 | No lowercase: 97205 | Lowercase: 71500 | Lowercase & Stemming: 56824 | Lowercase & Lemmas: 66265
 VOCAB_SIZE = 66265
 
 # Clean: 48 | No lowercase: 36 | Lowercase: 30 | Lowercase & Stemming: 30 | Lowercase & Lemmas: 30
-MAX_PADDING_LENGTH = 50
-OOV_TOKEN = "<OOV>"
-TOKENIZER = Tokenizer(num_words=VOCAB_SIZE, oov_token=OOV_TOKEN)
+MAX_PADDING_LENGTH = 30
 
 LEARNING_RATE = 2e-5  # 0.0001 | 2e-5
 EPOCHS = 30
@@ -53,56 +48,28 @@ HYPER_PARAMETERS = {
 }
 
 
-def create_embeddings(path: str = GLOVE_PATH_6B300D) -> dict:
-    embeddings_index = {}
-
-    f = open(path, "r", errors='ignore', encoding="utf8")
-    for line in f:
-        values = line.split()
-        word = values[0]
-        coefficients = np.asarray(values[1:], dtype='float32')
-        embeddings_index[word] = coefficients
-    f.close()
-
-    return embeddings_index
+def encode_one_hot_and_preprocess(texts: list, vocab_size: int = VOCAB_SIZE) -> list:
+    return [one_hot(
+        # temp_text,
+        process_data(temp_text, do_stemming=False, do_lemmas=True, do_lowercase=True),
+        vocab_size,
+        filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
+        lower=False,
+        split=' '
+    ) for temp_text in texts]
 
 
-def create_embedding_matrix(word_index: dict, max_len: int = MAX_PADDING_LENGTH) -> np.ndarray:
-    embeddings_index = create_embeddings()
-    embedding_matrix = np.zeros((len(word_index) + 1, max_len))
-    for word, i in word_index.items():
-        embedding_vector = embeddings_index.get(word)
-        if embedding_vector is not None:
-            embedding_matrix[i] = embedding_vector
+def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH) -> np.ndarray:
+    texts = encode_one_hot_and_preprocess(texts)
+    texts = tf.keras.preprocessing.sequence.pad_sequences(texts, maxlen=max_len, padding="post")
 
-    return embedding_matrix
+    return np.array(texts)
 
 
-def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH) -> tuple:
-    for i, text in enumerate(texts):
-        # texts[i] = text
-        # texts[i] = process_data(text, do_stemming=False, do_lemmas=False, do_lowercase=False)
-        texts[i] = process_data(text, do_stemming=False, do_lemmas=True, do_lowercase=True)
-
-    TOKENIZER.fit_on_texts(texts)
-    WORD_INDEX = TOKENIZER.word_index
-    texts_sequences = TOKENIZER.texts_to_sequences(texts)
-    texts_sequences = tf.keras.preprocessing.sequence.pad_sequences(
-        texts_sequences, maxlen=max_len, padding="post", truncating="post"
-    )
-
-    return np.array(texts_sequences), WORD_INDEX
-
-
-def cnn_tuning(filters: int, kernel_size: int, embedding_matrix: np.ndarray, word_index: dict):
+def cnn_tuning(filters, kernel_size):
+    # # OVER-FIT
     # temp_model = Sequential([
-    #     Embedding(
-    #         input_dim=len(word_index) + 1,
-    #         output_dim=MAX_PADDING_LENGTH,
-    #         weights=[embedding_matrix],
-    #         input_length=MAX_PADDING_LENGTH,
-    #         trainable=False
-    #     ),
+    #     Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
     #     Conv1D(filters, kernel_size, activation="relu"),
     #     GlobalMaxPool1D(),
     #     Dense(128, activation="relu"),
@@ -111,25 +78,20 @@ def cnn_tuning(filters: int, kernel_size: int, embedding_matrix: np.ndarray, wor
     #     Dropout(0.1),
     #     Dense(4, activation="softmax")
     # ])
+
     temp_model = Sequential([
-        Embedding(
-            input_dim=len(word_index) + 1,
-            output_dim=MAX_PADDING_LENGTH,
-            weights=[embedding_matrix],
-            input_length=MAX_PADDING_LENGTH,
-            trainable=False
-        ),
-        Conv1D(128, kernel_size=9, padding='same', activation="relu"),
+        Embedding(VOCAB_SIZE, 4, input_length=MAX_PADDING_LENGTH),
+        Conv1D(128, kernel_size=5, padding='same', activation="relu"),
         MaxPooling1D(pool_size=2),
-        Conv1D(64, kernel_size=9, padding='same', activation="relu"),
+        Conv1D(64, kernel_size=5, padding='same', activation="relu"),
         MaxPooling1D(pool_size=2),
-        Conv1D(32, kernel_size=9, padding='same', activation="relu"),
+        Conv1D(32, kernel_size=5, padding='same', activation="relu"),
         MaxPooling1D(pool_size=2),
         Flatten(),
         Dense(256, activation="relu"),
-        # Dropout(0.5),
-        # Dense(10, activation="relu"),
-        # Dropout(0.1),
+        Dropout(0.5),
+        Dense(10, activation="relu"),
+        Dropout(0.1),
         Dense(4, activation="softmax")
     ])
     temp_model.compile(
@@ -177,9 +139,9 @@ if __name__ == "__main__":
     val_labels = np_utils.to_categorical(val_labels)
     test_labels = np_utils.to_categorical(test_labels)
 
-    train_texts, train_word_idx = prepare_data_for_train(train_texts)
-    val_texts, val_word_idx = prepare_data_for_train(val_texts)
-    test_texts, test_word_idx = prepare_data_for_train(test_texts)
+    train_texts = prepare_data_for_train(train_texts)
+    val_texts = prepare_data_for_train(val_texts)
+    test_texts = prepare_data_for_train(test_texts)
 
     train_labels = np.array(train_labels)
     val_labels = np.array(val_labels)
@@ -189,12 +151,9 @@ if __name__ == "__main__":
     print(f"Validation shapes: {val_texts.shape} | {val_labels.shape}")
     print(f"Test shapes: {test_texts.shape} | {test_labels.shape}\n")
 
-    embd_matrix = create_embedding_matrix(word_index=train_word_idx)
-
-
     val_data = (val_texts, val_labels)
 
-    model = cnn_tuning(64, 9, embedding_matrix=embd_matrix, word_index=train_word_idx)
+    model = cnn_tuning(64, 9)
     csv_logger = CSVLogger(os.path.join(FOUNTA_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",",
                            append=False)
     early_stop = EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2, restore_best_weights=True)
@@ -214,10 +173,10 @@ if __name__ == "__main__":
     plt.show()
 
     # # ======= Test Model =======
-    new_model = load_model(os.path.join(FOUNTA_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
-    predictions = new_model.predict(test_texts)
+    # new_model = load_model(os.path.join(FOUNTA_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
 
-    # predictions = model.predict(test_texts)
+    # predictions = new_model.predict(test_texts)
+    predictions = model.predict(test_texts)
 
     for prediction in predictions:
         for index, pred_class in enumerate(prediction):
