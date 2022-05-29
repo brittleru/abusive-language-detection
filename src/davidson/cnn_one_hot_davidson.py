@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 
 from pathlib import Path
 from keras.utils import np_utils
-from keras.callbacks import CSVLogger
 from keras.metrics import Precision, Recall
 from keras.preprocessing.text import one_hot
 from keras.models import Sequential, load_model
 from sklearn.metrics import classification_report
+from keras.callbacks import CSVLogger, EarlyStopping
 from sklearn.model_selection import train_test_split, GridSearchCV
 from keras.layers import Dense, Embedding, GlobalMaxPool1D, Conv1D, Dropout, SpatialDropout1D, MaxPooling1D, Flatten
 
@@ -130,9 +130,10 @@ if __name__ == "__main__":
     model = cnn_tuning(64, 9)
     csv_logger = CSVLogger(os.path.join(DAVIDSON_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",",
                            append=False)
+    early_stop = EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2, restore_best_weights=True)
     start_time = time.time()
     hist = model.fit(X_train, y_train, validation_data=val_data, epochs=EPOCHS, batch_size=BATCH_SIZE,
-                     callbacks=[csv_logger])
+                     callbacks=[csv_logger, early_stop])
     end_time = time.time()
     model.save(os.path.join(DAVIDSON_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
     display_readable_time(start_time=start_time, end_time=end_time)
@@ -152,7 +153,7 @@ if __name__ == "__main__":
 
     for prediction in predictions:
         for index, pred_class in enumerate(prediction):
-            if pred_class > 0.8:
+            if pred_class == max(prediction):
                 prediction[index] = 1
             else:
                 prediction[index] = 0

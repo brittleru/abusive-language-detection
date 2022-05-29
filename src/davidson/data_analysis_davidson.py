@@ -22,7 +22,7 @@ train_text = df["tweet"].tolist()
 
 
 def plots():
-    # Number of hate or nothate or neutral tweets
+    # Number of hate or not-hate or neutral tweets
     hate_tweets = df[df["class"] == 0]
     offensive_tweets = df[df["class"] == 1]
     neutral_tweets = df[df["class"] == 2]
@@ -58,14 +58,20 @@ def get_unique_words_vocabulary(dataset: list) -> dict:
 
 def get_max_words_in_tweets(dataset: list) -> int:
     max_len = 0
+    min_len = 9999999
     max_tweet = ""
+    min_tweet = ""
     for tweet in dataset:
         # temp_tweet = tweet.split(" ")
         temp_tweet = process_data(tweet, do_stemming=False, do_lemmas=True, do_lowercase=True).split(" ")
         if max_len < len(temp_tweet):
             max_len = len(temp_tweet)
             max_tweet = temp_tweet
+        if min_len > len(temp_tweet):
+            min_len = len(temp_tweet)
+            min_tweet = temp_tweet
 
+    print(f"Min sentance: {min_tweet}")
     print(f"Max sentence: {max_tweet}")
     return max_len
 
