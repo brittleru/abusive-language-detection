@@ -30,6 +30,9 @@ def process_data(text: str, do_stemming: bool = False, do_lemmas: bool = False, 
     @param do_lemmas: Lemmatize word to be at a dictionary representation if true
     @return: The new processed text as a list of words
     """
+    text = sub(r" +", " ", text)
+    text = sub(r"\S@\S\s?", "", text)
+    text = sub(r"[0-9]+(?:.[0-9]+){3}", "", text)
     text = sub(r"\$\w*", "", text)
     text = sub(r"(RT)+", "", text)
     text = sub(r"(lt)+", "", text)
