@@ -122,7 +122,7 @@ if __name__ == "__main__":
     # print(train_labels.shape)
 
     X_train, X_temp, y_train, y_temp = train_test_split(train_text, train_labels, test_size=0.1, random_state=42)
-    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
     # print("\n\n")
     # print(X_train.shape, y_train.shape)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     for prediction in predictions:
         for index, pred_class in enumerate(prediction):
-            if pred_class > 0.8:
+            if pred_class > 0.5:
                 prediction[index] = 1
             else:
                 prediction[index] = 0

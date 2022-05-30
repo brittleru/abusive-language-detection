@@ -68,6 +68,8 @@ def classifiers_scores(train_set: np.ndarray, train_label: np.ndarray,
         accuracies.append(acc)
         f1_scores.append(f1)
         print(f"{key} -> acc: {acc} | f1: {f1}")
+        print(f"Classification Report for {key}")
+        print(f"{classification_report(test_label, train_predictions)}\n")
 
     return accuracies, f1_scores
 
@@ -97,7 +99,7 @@ if __name__ == "__main__":
         "One vs One with 3 KNN": OneVsOneClassifier(KNeighborsClassifier(n_neighbors=3)),
         "XGBoost": XGBClassifier(),
         "LightGBM": LGBMClassifier(),
-        "CatBoost": CatBoostClassifier(),
+        "CatBoost": CatBoostClassifier(silent=True),
     }
 
     start_time = time.time()
