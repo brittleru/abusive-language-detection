@@ -14,6 +14,8 @@ that are different we can gain an enhanced hate-speech detection algorithm.
 ### Technologies used
 
 - Python 3.8.6 (with the modules from "requirements.txt")
+- Tensorflow
+- PyTorch
 - Django Framework for backend
 - Twitter API
 - HTML, CSS, JavaScript and Bootstrap for UI

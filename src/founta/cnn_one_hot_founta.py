@@ -33,14 +33,14 @@ FOUNTA_MODEL_PATH = os.path.join(MODEL_PATH, "founta")
 # cnn_model_lowercase_stemming | cnn_model_lowercase_lemme
 MODEL_FILE_NAME = "cnn_model_lowercase_lemme"
 
-# Clean: 292512 | No lowercase: 97205 | Lowercase: 71500 | Lowercase & Stemming: 56824 | Lowercase & Lemmas: 66265
-VOCAB_SIZE = 66265
+# Clean: 292512 | No lowercase: 97205 | Lowercase: 71500 | Lowercase & Stemming: 56824 | Lowercase & Lemmas: 67077
+VOCAB_SIZE = 67077
 
 # Clean: 48 | No lowercase: 36 | Lowercase: 30 | Lowercase & Stemming: 30 | Lowercase & Lemmas: 30
 MAX_PADDING_LENGTH = 30
 
 LEARNING_RATE = 2e-5  # 0.0001 | 2e-5
-EPOCHS = 30
+EPOCHS = 100
 BATCH_SIZE = 32
 HYPER_PARAMETERS = {
     "filters": [32, 64, 128, 254],
@@ -67,33 +67,33 @@ def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH) -> np
 
 
 def cnn_tuning(filters, kernel_size):
-    # # OVER-FIT
+    # OVER-FIT
+    temp_model = Sequential([
+        Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
+        Conv1D(filters, kernel_size, activation="relu"),
+        GlobalMaxPool1D(),
+        # Dense(128, activation="relu"),
+        # Dropout(0.5),
+        # Dense(64, activation="relu"),
+        # Dropout(0.1),
+        Dense(4, activation="softmax")
+    ])
+
     # temp_model = Sequential([
-    #     Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
-    #     Conv1D(filters, kernel_size, activation="relu"),
-    #     GlobalMaxPool1D(),
-    #     Dense(128, activation="relu"),
+    #     Embedding(VOCAB_SIZE, 4, input_length=MAX_PADDING_LENGTH),
+    #     Conv1D(128, kernel_size=5, padding='same', activation="relu"),
+    #     MaxPooling1D(pool_size=2),
+    #     Conv1D(64, kernel_size=5, padding='same', activation="relu"),
+    #     MaxPooling1D(pool_size=2),
+    #     Conv1D(32, kernel_size=5, padding='same', activation="relu"),
+    #     MaxPooling1D(pool_size=2),
+    #     Flatten(),
+    #     Dense(256, activation="relu"),
     #     Dropout(0.5),
     #     Dense(64, activation="relu"),
     #     Dropout(0.1),
     #     Dense(4, activation="softmax")
     # ])
-
-    temp_model = Sequential([
-        Embedding(VOCAB_SIZE, 4, input_length=MAX_PADDING_LENGTH),
-        Conv1D(128, kernel_size=5, padding='same', activation="relu"),
-        MaxPooling1D(pool_size=2),
-        Conv1D(64, kernel_size=5, padding='same', activation="relu"),
-        MaxPooling1D(pool_size=2),
-        Conv1D(32, kernel_size=5, padding='same', activation="relu"),
-        MaxPooling1D(pool_size=2),
-        Flatten(),
-        Dense(256, activation="relu"),
-        Dropout(0.5),
-        Dense(10, activation="relu"),
-        Dropout(0.1),
-        Dense(4, activation="softmax")
-    ])
     temp_model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
         loss="categorical_crossentropy",
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
     val_data = (val_texts, val_labels)
 
-    model = cnn_tuning(64, 9)
+    model = cnn_tuning(32, 3)
     csv_logger = CSVLogger(os.path.join(FOUNTA_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",",
                            append=False)
     early_stop = EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2, restore_best_weights=True)
@@ -195,13 +195,13 @@ if __name__ == "__main__":
     # # ======= Grid Search =======
     # model = tf.keras.wrappers.scikit_learn.KerasClassifier(
     #     build_fn=cnn_tuning,
-    #     epochs=EPOCHS,
+    #     epochs=20,
     #     batch_size=BATCH_SIZE,
     # )
     # start_time = time.time()
-    # search = GridSearchCV(estimator=model, param_grid=HYPER_PARAMETERS, cv=5, verbose=1)
-    # search_result = search.fit(X_train, y_train)
-    # test_accuracy = search.score(X_temp, y_temp)
+    # search = GridSearchCV(estimator=model, param_grid=HYPER_PARAMETERS, cv=3, verbose=1)
+    # search_result = search.fit(train_texts, train_labels, validation_data=val_data)
+    # test_accuracy = search.score(test_texts, test_labels)
     # end_time = time.time()
     # print("\n\n")
     # display_readable_time(start_time=start_time, end_time=end_time)
@@ -211,13 +211,13 @@ if __name__ == "__main__":
     # print(search.best_score_)
     # print(test_accuracy)
     #
-    # joblib.dump(search.best_estimator_, os.path.join(MODEL_PATH, "grid_model_cnn.pkl"))
+    # joblib.dump(search.best_estimator_, os.path.join(MODEL_PATH, "grid_model_cnn_founta.pkl"))
     # try:
-    #     search.save(os.path.join(MODEL_PATH, "grid_model_cnn.h5"))
+    #     search.save(os.path.join(MODEL_PATH, "grid_model_cnn_founta.h5"))
     # except:
     #     print("Something went wrong")
     # load_options = tf.saved_model.LoadOptions(experimental_io_device='/job:localhost')
-    # best_model = joblib.load(os.path.join(MODEL_PATH, "grid_model_cnn.pkl"))
+    # best_model = joblib.load(os.path.join(MODEL_PATH, "grid_model_cnn_founta.pkl"))
 
 
 
