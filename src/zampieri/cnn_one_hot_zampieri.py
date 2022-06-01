@@ -118,21 +118,22 @@ def convert_labels_to_numerical(labels: list):
 if __name__ == "__main__":
 
     train_df = pd.read_csv(TRAIN_SET_PATH, delimiter=",")
-    test_df = pd.read_csv(TEST_SET_PATH, delimiter=",")
+    # test_df = pd.read_csv(TEST_SET_PATH, delimiter=",")
 
     train_texts = train_df["tweet"].tolist()
-    test_texts = test_df["tweet"].tolist()
+    # test_texts = test_df["tweet"].tolist()
 
     train_labels = convert_labels_to_numerical(train_df["subtask_a"].tolist())
-    test_labels = convert_labels_to_numerical(test_df["subtask_a"].tolist())
+    # test_labels = convert_labels_to_numerical(test_df["subtask_a"].tolist())
 
     train_texts = prepare_data_for_train(train_texts)
-    test_texts = prepare_data_for_train(test_texts)
+    # test_texts = prepare_data_for_train(test_texts)
 
     train_labels = np.array(train_labels)
-    test_labels = np.array(test_labels)
+    # test_labels = np.array(test_labels)
 
-    X_train, X_val, y_train, y_val = train_test_split(train_texts, train_labels, test_size=0.1, random_state=42)
+    X_train, X_temp, y_train, y_temp = train_test_split(train_texts, train_labels, test_size=0.2, random_state=42)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
     # print("\n\n")
     # print(X_train.shape, y_train.shape)
@@ -157,12 +158,12 @@ if __name__ == "__main__":
     plot_train_data(log_data, train_metric="loss", validation_metric="val_loss")
     plot_train_data(log_data, train_metric="precision", validation_metric="val_precision")
     plot_train_data(log_data, train_metric="recall", validation_metric="val_recall")
-    plt.show()
+    # plt.show()
 
     # # ======= Test Model =======
     # new_model = load_model(os.path.join(ZAMPIERI_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
     # predictions = new_model.predict(X_test)
-    predictions = model.predict(test_texts)
+    predictions = model.predict(X_test)
 
     for prediction in predictions:
         for index, pred_class in enumerate(prediction):
@@ -173,11 +174,11 @@ if __name__ == "__main__":
 
     # print(predictions)
     # print(test_labels)
-    print(type(test_labels), type(predictions))
+    print(type(y_test), type(predictions))
     # print(predictions)
     # probVal = np.amax(predictions)
     # classIndex = np.argmax(predictions, axis=1)[0]
-    print(f"\n{classification_report(test_labels, predictions)}")
+    print(f"\n{classification_report(y_test, predictions)}")
 
     # # ======= Grid Search =======
     # model = tf.keras.wrappers.scikit_learn.KerasClassifier(

@@ -26,7 +26,7 @@ MODEL_PATH = os.path.join(BASE_DIR, "models")
 WASSEM_MODEL_PATH = os.path.join(MODEL_PATH, "wassem")
 
 MODEL_FILE_NAME = "xlnet_large_wassem"
-XLNET_TYPE = "xlnet-large-cased"  # xlnet-large-cased | xlnet-base-caseded
+XLNET_TYPE = "xlnet-large-cased"  # xlnet-large-cased | xlnet-base-cased
 
 # Clean: 41462 | No lowercase: 18973 | Lowercase: 15226 | Lowercase & Stemming: 10845 | Lowercase & Lemmas: 13671
 VOCAB_SIZE = 13671

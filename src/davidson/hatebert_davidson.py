@@ -88,7 +88,7 @@ def hatebert_tuning(hatebert_type: str = HATEBERT_TYPE):
     token_type_ids = tf.keras.Input(shape=(MAX_PADDING_LENGTH,), name="token_type_ids", dtype="int32")
     attention_masks = tf.keras.Input(shape=(MAX_PADDING_LENGTH,), name="attention_mask", dtype="int32")
 
-    hatebert_model = TFAutoModel.from_pretrained(hatebert_type)
+    hatebert_model = TFAutoModel.from_pretrained(hatebert_type, from_pt=True)
     encodings = hatebert_model(input_ids=input_ids, attention_mask=attention_masks, token_type_ids=token_type_ids)[0]
     last_encoding = tf.squeeze(encodings[:, -1:, :], axis=1)
     # last_encoding = tf.keras.layers.Dropout(0.1)(last_encoding)

@@ -89,7 +89,7 @@ def hatexplain_tuning(hatexplain_type: str = HATEXPLAIN_TYPE):
     token_type_ids = tf.keras.Input(shape=(MAX_PADDING_LENGTH,), name="token_type_ids", dtype="int32")
     attention_masks = tf.keras.Input(shape=(MAX_PADDING_LENGTH,), name="attention_mask", dtype="int32")
 
-    hatexplain_model = TFAutoModel.from_pretrained(hatexplain_type)
+    hatexplain_model = TFAutoModel.from_pretrained(hatexplain_type, from_pt=True)
     encodings = hatexplain_model(input_ids=input_ids, attention_mask=attention_masks, token_type_ids=token_type_ids)[0]
     last_encoding = tf.squeeze(encodings[:, -1:, :], axis=1)
     # last_encoding = tf.keras.layers.Dropout(0.1)(last_encoding)

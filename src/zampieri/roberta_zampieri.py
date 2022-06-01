@@ -118,15 +118,16 @@ if __name__ == "__main__":
     tokenizer = RobertaTokenizer.from_pretrained(ROBERTA_TYPE, do_lower_case=True)
 
     train_df = pd.read_csv(TRAIN_SET_PATH, delimiter=",")
-    test_df = pd.read_csv(TEST_SET_PATH, delimiter=",")
+    # test_df = pd.read_csv(TEST_SET_PATH, delimiter=",")
 
     train_texts = train_df["tweet"].tolist()
-    test_texts = test_df["tweet"].tolist()
+    # test_texts = test_df["tweet"].tolist()
 
     train_labels = convert_labels_to_numerical(train_df["subtask_a"].tolist())
-    test_labels = convert_labels_to_numerical(test_df["subtask_a"].tolist())
+    # test_labels = convert_labels_to_numerical(test_df["subtask_a"].tolist())
 
-    X_train, X_val, y_train, y_val = train_test_split(train_texts, train_labels, test_size=0.1)
+    X_train, X_temp, y_train, y_temp = train_test_split(train_texts, train_labels, test_size=0.2)
+    X_val, test_texts, y_val, test_labels = train_test_split(X_temp, y_temp, test_size=0.5)
 
     train_ids, train_masks, train_labels = encode_tweets(
         tweets_text=X_train,
@@ -139,7 +140,7 @@ if __name__ == "__main__":
         roberta_tokenizer=tokenizer
     )
     test_ids, test_masks, test_labels = encode_tweets(
-        tweets_text=train_texts,
+        tweets_text=test_texts,
         tweets_labels=test_labels,
         roberta_tokenizer=tokenizer
     )

@@ -88,30 +88,32 @@ def classifiers_scores(train_set: np.ndarray, train_label: np.ndarray,
 if __name__ == "__main__":
 
     train_df = pd.read_csv(TRAIN_SET_PATH, delimiter=",")
-    test_df = pd.read_csv(TEST_SET_PATH, delimiter=",")
+    # test_df = pd.read_csv(TEST_SET_PATH, delimiter=",")
 
     train_texts = train_df["tweet"].tolist()
-    test_texts = test_df["tweet"].tolist()
+    # test_texts = test_df["tweet"].tolist()
 
     train_labels = convert_labels_to_numerical(train_df["subtask_a"].tolist())
-    test_labels = convert_labels_to_numerical(test_df["subtask_a"].tolist())
+    # test_labels = convert_labels_to_numerical(test_df["subtask_a"].tolist())
 
     for i, text in enumerate(train_texts):
         train_texts[i] = process_data(str(text), do_stemming=False, do_lemmas=False, do_lowercase=False)
         # train_texts[i] = str(text)
 
-    for i, text in enumerate(test_texts):
-        test_texts[i] = process_data(str(text), do_stemming=False, do_lemmas=False, do_lowercase=False)
-        # test_texts[i] = str(text)
+    # for i, text in enumerate(test_texts):
+    #     test_texts[i] = process_data(str(text), do_stemming=False, do_lemmas=False, do_lowercase=False)
+    #     # test_texts[i] = str(text)
 
     tfidfVectorizer = TfidfVectorizer(max_features=MAX_PADDING_LENGTH)
     train_texts = tfidfVectorizer.fit_transform(train_texts).toarray()
-    test_texts = tfidfVectorizer.fit_transform(test_texts).toarray()
+    # test_texts = tfidfVectorizer.fit_transform(test_texts).toarray()
 
     train_texts = np.array(train_texts)
-    test_texts = np.array(test_texts)
     train_labels = np.array(train_labels)
-    test_labels = np.array(test_labels)
+    # test_texts = np.array(test_texts)
+    # test_labels = np.array(test_labels)
+
+    X_train, test_texts, y_train, test_labels = train_test_split(train_texts, train_labels, test_size=0.1)
 
     print("Started training...")
 

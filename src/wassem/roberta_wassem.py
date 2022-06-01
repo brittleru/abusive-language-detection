@@ -89,7 +89,7 @@ def roberta_tuning(roberta_type: str = ROBERTA_TYPE):
     last_encoding = tf.squeeze(encodings[:, -1:, :], axis=1)
     # last_encoding = tf.keras.layers.Dropout(0.1)(last_encoding)
 
-    outputs = tf.keras.layers.Dense(4, activation="softmax", name="outputs")(last_encoding)
+    outputs = tf.keras.layers.Dense(3, activation="softmax", name="outputs")(last_encoding)
 
     temp_model = tf.keras.Model(inputs=[input_ids, attention_masks], outputs=outputs)
     temp_model.compile(
