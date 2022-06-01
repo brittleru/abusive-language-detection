@@ -152,7 +152,7 @@ if __name__ == "__main__":
     early_stop = EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2, restore_best_weights=True)
     csv_logger = CSVLogger(os.path.join(VIDGEN_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",", append=False)
     start_time = time.time()
-    hist = model.fit(X_train, y_train, validation_data=validation_data, epochs=EPOCHS, batch_size=BATCH_SIZE,
+    hist = model.fit(train_data, train_labels, validation_data=validation_data, epochs=EPOCHS, batch_size=BATCH_SIZE,
                      callbacks=[csv_logger, early_stop])
     end_time = time.time()
     model.save(os.path.join(VIDGEN_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
