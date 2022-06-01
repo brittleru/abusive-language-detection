@@ -18,20 +18,20 @@ from src.utils import process_data, display_readable_time, display_train_report_
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = os.path.join(BASE_DIR, "data")
-FOUNTA_DIR = os.path.join(DATA_DIR, "large-founta")
-TRAIN_SET_PATH = os.path.join(FOUNTA_DIR, "train.tsv")
-VAL_SET_PATH = os.path.join(FOUNTA_DIR, "dev.tsv")
-TEST_SET_PATH = os.path.join(FOUNTA_DIR, "test.tsv")
+DAVIDSON_DIR = os.path.join(DATA_DIR, "hatespeech-davidson")
+DAVIDSON_DIR = os.path.join(DAVIDSON_DIR, "data")
+DATASET_PATH = os.path.join(DAVIDSON_DIR, "labeled_data.csv")
 MODEL_LOGS_PATH = os.path.join(BASE_DIR, "model-logs")
-FOUNTA_MODEL_LOGS_PATH = os.path.join(MODEL_LOGS_PATH, "founta")
+DAVIDSON_MODEL_LOGS_PATH = os.path.join(MODEL_LOGS_PATH, "davidson")
 MODEL_PATH = os.path.join(BASE_DIR, "models")
-FOUNTA_MODEL_PATH = os.path.join(MODEL_PATH, "founta")
+DAVIDSON_MODEL_PATH = os.path.join(MODEL_PATH, "davidson")
 
-MODEL_FILE_NAME = "xlnet_large_founta"
+
+MODEL_FILE_NAME = "xlnet_large_davidson"
 XLNET_TYPE = "xlnet-large-cased"  # xlnet-large-cased | xlnet-base-caseded
 
-# Clean: 48 | No lowercase: 36 | Lowercase: 30 | Lowercase & Stemming: 30 | Lowercase & Lemmas: 30
-MAX_PADDING_LENGTH = 30
+# Clean: 36 | No lowercase: 29 | Lowercase: 28 | Lowercase & Stemming: 28 | Lowercase & Lemmas: 28
+MAX_PADDING_LENGTH = 28
 LEARNING_RATE = 2e-5
 BATCH_SIZE = 32
 EPOCHS = 10
@@ -102,55 +102,32 @@ def xlnet_tuning(xlnet_type: str = XLNET_TYPE):
     return temp_model
 
 
-def convert_labels_to_numerical(labels: list):
-    # Transform labels to numerical value
-    for index, label in enumerate(labels):
-        if label == "normal":
-            labels[index] = 0
-        elif label == "spam":
-            labels[index] = 1
-        elif label == "abusive":
-            labels[index] = 2
-        elif label == "hateful":
-            labels[index] = 3
-        else:
-            raise ValueError("Class column must have only 'normal', 'spam', 'abusive' or 'hateful' values")
-
-    return labels
-
-
 if __name__ == "__main__":
     tokenizer = XLNetTokenizer.from_pretrained(XLNET_TYPE, do_lower_case=True)
 
-    train_df = pd.read_csv(TRAIN_SET_PATH, sep="\t", header=0)
-    val_df = pd.read_csv(VAL_SET_PATH, sep="\t", header=0)
-    test_df = pd.read_csv(TEST_SET_PATH, sep="\t", header=0)
+    df = pd.read_csv(DATASET_PATH, delimiter=",")
 
-    train_texts = train_df["sentence"].tolist()
-    val_texts = val_df["sentence"].tolist()
-    test_texts = test_df["sentence"].tolist()
-
-    train_labels = convert_labels_to_numerical(train_df["class"].tolist())
-    val_labels = convert_labels_to_numerical(val_df["class"].tolist())
-    test_labels = convert_labels_to_numerical(test_df["class"].tolist())
+    train_texts = df["tweet"].tolist()
+    train_labels = df["class"].tolist()
 
     train_labels = np_utils.to_categorical(train_labels)
-    val_labels = np_utils.to_categorical(val_labels)
-    test_labels = np_utils.to_categorical(test_labels)
+
+    X_train, X_temp, y_train, y_temp = train_test_split(train_texts, train_labels, test_size=0.2)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5)
 
     train_ids, train_tokens, train_masks, train_labels = encode_tweets(
-        tweets_text=train_texts,
-        tweets_labels=train_labels,
+        tweets_text=X_train,
+        tweets_labels=y_train,
         xlnet_tokenizer=tokenizer
     )
     validation_ids, validation_tokens, validation_masks, val_labels = encode_tweets(
-        tweets_text=val_texts,
-        tweets_labels=val_labels,
+        tweets_text=X_val,
+        tweets_labels=y_val,
         xlnet_tokenizer=tokenizer
     )
     test_ids, test_tokens, test_masks, test_labels = encode_tweets(
-        tweets_text=test_texts,
-        tweets_labels=test_labels,
+        tweets_text=X_test,
+        tweets_labels=y_test,
         xlnet_tokenizer=tokenizer
     )
 
@@ -161,16 +138,16 @@ if __name__ == "__main__":
     model = xlnet_tuning()
     print(model.summary())
     early_stop = EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2, restore_best_weights=True)
-    csv_logger = CSVLogger(os.path.join(FOUNTA_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",",
+    csv_logger = CSVLogger(os.path.join(DAVIDSON_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",",
                            append=False)
     start_time = time.time()
     hist = model.fit(train_data, train_labels, validation_data=validation_data, epochs=EPOCHS, batch_size=BATCH_SIZE,
                      callbacks=[csv_logger, early_stop])
     end_time = time.time()
-    model.save(os.path.join(FOUNTA_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
+    model.save(os.path.join(DAVIDSON_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
     display_readable_time(start_time=start_time, end_time=end_time)
 
-    log_data = pd.read_csv(os.path.join(FOUNTA_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), sep=",", engine="python")
+    log_data = pd.read_csv(os.path.join(DAVIDSON_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), sep=",", engine="python")
     display_train_report_and_f1_score(log_data)
     plot_train_data(log_data, train_metric="accuracy", validation_metric="val_accuracy")
     plot_train_data(log_data, train_metric="loss", validation_metric="val_loss")
@@ -179,7 +156,7 @@ if __name__ == "__main__":
     plt.show()
 
     # # ======= Test Model =======
-    # new_model = load_model(os.path.join(FOUNTA_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
+    # new_model = load_model(os.path.join(DAVIDSON_MODEL_PATH, f"{MODEL_FILE_NAME}.h5"))
 
     # predictions = new_model.predict(test_texts)
     predictions = model.predict(test_data)

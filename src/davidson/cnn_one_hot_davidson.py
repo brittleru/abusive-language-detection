@@ -38,7 +38,7 @@ VOCAB_SIZE = 17819
 # Clean: 36 | No lowercase: 29 | Lowercase: 28 | Lowercase & Stemming: 28 | Lowercase & Lemmas: 28
 MAX_PADDING_LENGTH = 28
 
-LEARNING_RATE = 2e-4  # 0.0001 | 2e-5
+LEARNING_RATE = 2e-5  # 0.0001 | 2e-5
 EPOCHS = 100
 BATCH_SIZE = 32
 HYPER_PARAMETERS = {
@@ -67,33 +67,33 @@ def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH) -> np
 
 def cnn_tuning(filters, kernel_size):
     # # OVER-FIT
-    # temp_model = Sequential([
-    #     Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
-    #     Conv1D(filters, kernel_size, activation="relu"),
-    #     GlobalMaxPool1D(),
-    #     Dense(128, activation="relu"),
-    #     Dropout(0.5),
-    #     Dense(64, activation="relu"),
-    #     Dropout(0.1),
-    #     Dense(3, activation="softmax")
-    # ])
-
     temp_model = Sequential([
-        Embedding(VOCAB_SIZE, 150, input_length=MAX_PADDING_LENGTH),
-
-        Conv1D(128, kernel_size=5, padding='same', activation="relu"),
-        MaxPooling1D(pool_size=2),
-        Conv1D(64, kernel_size=5, padding='same', activation="relu"),
-        MaxPooling1D(pool_size=2),
-        Conv1D(32, kernel_size=5, padding='same', activation="relu"),
-        MaxPooling1D(pool_size=2),
-        Flatten(),
-        Dense(256, activation="relu"),
+        Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
+        Conv1D(filters, kernel_size, activation="relu"),
+        GlobalMaxPool1D(),
+        # Dense(128, activation="relu"),
         # Dropout(0.5),
-        # Dense(10, activation="relu"),
+        # Dense(64, activation="relu"),
         # Dropout(0.1),
         Dense(3, activation="softmax")
     ])
+    #
+    # temp_model = Sequential([
+    #     Embedding(VOCAB_SIZE, 150, input_length=MAX_PADDING_LENGTH),
+    #
+    #     Conv1D(128, kernel_size=5, padding='same', activation="relu"),
+    #     MaxPooling1D(pool_size=2),
+    #     Conv1D(64, kernel_size=5, padding='same', activation="relu"),
+    #     MaxPooling1D(pool_size=2),
+    #     Conv1D(32, kernel_size=5, padding='same', activation="relu"),
+    #     MaxPooling1D(pool_size=2),
+    #     Flatten(),
+    #     Dense(256, activation="relu"),
+    #     # Dropout(0.5),
+    #     # Dense(10, activation="relu"),
+    #     # Dropout(0.1),
+    #     Dense(3, activation="softmax")
+    # ])
     temp_model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
         loss="categorical_crossentropy",
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     print(X_test.shape, y_test.shape)
 
     val_data = (X_val, y_val)
-    model = cnn_tuning(64, 9)
+    model = cnn_tuning(32, 3)
     csv_logger = CSVLogger(os.path.join(DAVIDSON_MODEL_LOGS_PATH, f"{MODEL_FILE_NAME}.log"), separator=",",
                            append=False)
     early_stop = EarlyStopping(monitor="val_loss", mode="min", verbose=1, patience=2, restore_best_weights=True)

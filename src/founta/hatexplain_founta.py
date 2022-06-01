@@ -1,12 +1,11 @@
 import os
 import time
-from typing import Union
-
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+from typing import Union
 from pathlib import Path
 from keras.models import load_model
 from keras.metrics import Precision, Recall
@@ -30,7 +29,7 @@ FOUNTA_MODEL_LOGS_PATH = os.path.join(MODEL_LOGS_PATH, "founta")
 MODEL_PATH = os.path.join(BASE_DIR, "models")
 FOUNTA_MODEL_PATH = os.path.join(MODEL_PATH, "founta")
 
-MODEL_FILE_NAME = "hatebert_large_founta"
+MODEL_FILE_NAME = "hatexplain_large_founta"
 # Hate-speech-CNERG/bert-base-uncased-hatexplain | TehranNLP-org/bert-large-hateXplain
 HATEXPLAIN_TYPE = "Hate-speech-CNERG/bert-base-uncased-hatexplain"
 

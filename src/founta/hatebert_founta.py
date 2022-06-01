@@ -40,11 +40,6 @@ LEARNING_RATE = 2e-5
 BATCH_SIZE = 32
 EPOCHS = 10
 
-# tokenizer = AutoTokenizer.from_pretrained(HATEBERT_TYPE)
-# model = TFAutoModel.from_pretrained(HATEBERT_TYPE, from_pt=True)
-# inputs = tokenizer("He is a great guy")
-# prediction_logits, _ = model(input_ids=np.array(inputs['input_ids']), attention_mask=np.array(inputs["attention_mask"]))
-#
 
 def encode_tweet(tweet: str, hatebert_tokenizer: Union[PreTrainedTokenizerFast, PreTrainedTokenizerBase]):
     return hatebert_tokenizer.encode_plus(

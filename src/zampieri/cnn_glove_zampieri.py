@@ -132,7 +132,7 @@ def cnn_tuning(filters: int, kernel_size: int, embedding_matrix: np.ndarray, wor
     # ])
     temp_model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-        loss="categorical_crossentropy",
+        loss="binary_crossentropy",
         metrics=["accuracy", Precision(), Recall()]
     )
     return temp_model
@@ -146,7 +146,7 @@ def convert_labels_to_numerical(labels: list):
         elif label == "OFF":
             labels[index] = 1
         else:
-            raise ValueError("Class column must have only 'none', 'racism', or 'sexism' values")
+            raise ValueError("Class column must have only 'NOT' or 'OFF' values")
 
     return labels
 

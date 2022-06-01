@@ -71,10 +71,10 @@ def cnn_tuning(filters, kernel_size):
     #     Embedding(VOCAB_SIZE, 8, input_length=MAX_PADDING_LENGTH),
     #     Conv1D(filters, kernel_size, activation="relu"),
     #     GlobalMaxPool1D(),
-    #     Dense(128, activation="relu"),
-    #     Dropout(0.5),
-    #     Dense(64, activation="relu"),
-    #     Dropout(0.1),
+    #     # Dense(128, activation="relu"),
+    #     # Dropout(0.5),
+    #     # Dense(64, activation="relu"),
+    #     # Dropout(0.1),
     #     Dense(1, activation="sigmoid")
     # ])
 
@@ -110,7 +110,7 @@ def convert_labels_to_numerical(labels: list):
         elif label == "OFF":
             labels[index] = 1
         else:
-            raise ValueError("Class column must have only 'none', 'racism', or 'sexism' values")
+            raise ValueError("Class column must have only 'NOT' or 'OFF' values")
 
     return labels
 
