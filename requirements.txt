@@ -65,6 +65,9 @@ termcolor==1.1.0
 tf-estimator-nightly==2.8.0.dev2021122109
 threadpoolctl==3.1.0
 tokenizers==0.12.1
+torch==1.11.0+cu113
+torchaudio==0.11.0+cu113
+torchvision==0.12.0+cu113
 tqdm==4.64.0
 transformers==4.18.0
 tweepy==4.9.0
