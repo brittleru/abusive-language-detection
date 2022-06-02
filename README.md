@@ -67,4 +67,5 @@ the framework used).
    International AAAI Conference on Web and Social Media (2018).
 5. Waseem, Zeerak, and Dirk Hovy. "Hateful symbols or hateful people? predictive features for hate speech detection on 
    twitter." Proceedings of the NAACL student research workshop (2016).
+6. Röttger, Paul, et al. "Hatecheck: Functional tests for hate speech detection models." arXiv preprint arXiv:2012.15606 (2020).
    

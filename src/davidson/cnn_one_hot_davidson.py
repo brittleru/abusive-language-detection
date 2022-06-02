@@ -58,8 +58,8 @@ def encode_one_hot_and_preprocess(texts: list, vocab_size: int = VOCAB_SIZE) -> 
     ) for temp_text in texts]
 
 
-def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH) -> np.ndarray:
-    texts = encode_one_hot_and_preprocess(texts)
+def prepare_data_for_train(texts: list, max_len: int = MAX_PADDING_LENGTH, vocab_size: int = VOCAB_SIZE) -> np.ndarray:
+    texts = encode_one_hot_and_preprocess(texts, vocab_size)
     texts = tf.keras.preprocessing.sequence.pad_sequences(texts, maxlen=max_len, padding="post")
 
     return np.array(texts)
